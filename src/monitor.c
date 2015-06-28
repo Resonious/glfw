@@ -88,21 +88,21 @@ static int refreshVideoModes(_GLFWmonitor* monitor)
 
 void _glfwInputMonitorChange(void)
 {
-    int i, j, monitorCount = _glfw.monitorCount;
-    _GLFWmonitor** monitors = _glfw.monitors;
+    int i, j, monitorCount = _glfw->monitorCount;
+    _GLFWmonitor** monitors = _glfw->monitors;
 
-    _glfw.monitors = _glfwPlatformGetMonitors(&_glfw.monitorCount);
+    _glfw->monitors = _glfwPlatformGetMonitors(&_glfw->monitorCount);
 
     // Re-use still connected monitor objects
 
-    for (i = 0;  i < _glfw.monitorCount;  i++)
+    for (i = 0;  i < _glfw->monitorCount;  i++)
     {
         for (j = 0;  j < monitorCount;  j++)
         {
-            if (_glfwPlatformIsSameMonitor(_glfw.monitors[i], monitors[j]))
+            if (_glfwPlatformIsSameMonitor(_glfw->monitors[i], monitors[j]))
             {
-                _glfwFreeMonitor(_glfw.monitors[i]);
-                _glfw.monitors[i] = monitors[j];
+                _glfwFreeMonitor(_glfw->monitors[i]);
+                _glfw->monitors[i] = monitors[j];
                 break;
             }
         }
@@ -114,34 +114,34 @@ void _glfwInputMonitorChange(void)
     {
         _GLFWwindow* window;
 
-        for (j = 0;  j < _glfw.monitorCount;  j++)
+        for (j = 0;  j < _glfw->monitorCount;  j++)
         {
-            if (monitors[i] == _glfw.monitors[j])
+            if (monitors[i] == _glfw->monitors[j])
                 break;
         }
 
-        if (j < _glfw.monitorCount)
+        if (j < _glfw->monitorCount)
             continue;
 
-        for (window = _glfw.windowListHead;  window;  window = window->next)
+        for (window = _glfw->windowListHead;  window;  window = window->next)
         {
             if (window->monitor == monitors[i])
                 window->monitor = NULL;
         }
 
-        if (_glfw.callbacks.monitor)
-            _glfw.callbacks.monitor((GLFWmonitor*) monitors[i], GLFW_DISCONNECTED);
+        if (_glfw->callbacks.monitor)
+            _glfw->callbacks.monitor((GLFWmonitor*) monitors[i], GLFW_DISCONNECTED);
     }
 
     // Find and report newly connected monitors (not in the old list)
     // Re-used monitor objects are then removed from the old list to avoid
     // having them destroyed at the end of this function
 
-    for (i = 0;  i < _glfw.monitorCount;  i++)
+    for (i = 0;  i < _glfw->monitorCount;  i++)
     {
         for (j = 0;  j < monitorCount;  j++)
         {
-            if (_glfw.monitors[i] == monitors[j])
+            if (_glfw->monitors[i] == monitors[j])
             {
                 monitors[j] = NULL;
                 break;
@@ -151,8 +151,8 @@ void _glfwInputMonitorChange(void)
         if (j < monitorCount)
             continue;
 
-        if (_glfw.callbacks.monitor)
-            _glfw.callbacks.monitor((GLFWmonitor*) _glfw.monitors[i], GLFW_CONNECTED);
+        if (_glfw->callbacks.monitor)
+            _glfw->callbacks.monitor((GLFWmonitor*) _glfw->monitors[i], GLFW_CONNECTED);
     }
 
     _glfwFreeMonitors(monitors, monitorCount);
@@ -298,18 +298,18 @@ GLFWAPI GLFWmonitor** glfwGetMonitors(int* count)
 
     _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
 
-    *count = _glfw.monitorCount;
-    return (GLFWmonitor**) _glfw.monitors;
+    *count = _glfw->monitorCount;
+    return (GLFWmonitor**) _glfw->monitors;
 }
 
 GLFWAPI GLFWmonitor* glfwGetPrimaryMonitor(void)
 {
     _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
 
-    if (!_glfw.monitorCount)
+    if (!_glfw->monitorCount)
         return NULL;
 
-    return (GLFWmonitor*) _glfw.monitors[0];
+    return (GLFWmonitor*) _glfw->monitors[0];
 }
 
 GLFWAPI void glfwGetMonitorPos(GLFWmonitor* handle, int* xpos, int* ypos)
@@ -353,7 +353,7 @@ GLFWAPI const char* glfwGetMonitorName(GLFWmonitor* handle)
 GLFWAPI GLFWmonitorfun glfwSetMonitorCallback(GLFWmonitorfun cbfun)
 {
     _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
-    _GLFW_SWAP_POINTERS(_glfw.callbacks.monitor, cbfun);
+    _GLFW_SWAP_POINTERS(_glfw->callbacks.monitor, cbfun);
     return cbfun;
 }
 

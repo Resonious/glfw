@@ -368,7 +368,7 @@ extern GLboolean _glfwInitialized;
  *  This should only be touched after a call to @ref glfwInit that has not been
  *  followed by a call to @ref glfwTerminate.
  */
-extern _GLFWlibrary _glfw;
+extern _GLFWlibrary *_glfw;
 
 
 //========================================================================

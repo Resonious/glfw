@@ -55,24 +55,24 @@ static void setCursorMode(_GLFWwindow* window, int newMode)
 
     window->cursorMode = newMode;
 
-    if (_glfw.cursorWindow == window)
+    if (_glfw->cursorWindow == window)
     {
         if (oldMode == GLFW_CURSOR_DISABLED)
         {
             _glfwPlatformSetCursorPos(window,
-                                      _glfw.cursorPosX,
-                                      _glfw.cursorPosY);
+                                      _glfw->cursorPosX,
+                                      _glfw->cursorPosY);
         }
         else if (newMode == GLFW_CURSOR_DISABLED)
         {
             int width, height;
 
             _glfwPlatformGetCursorPos(window,
-                                      &_glfw.cursorPosX,
-                                      &_glfw.cursorPosY);
+                                      &_glfw->cursorPosX,
+                                      &_glfw->cursorPosY);
 
-            window->cursorPosX = _glfw.cursorPosX;
-            window->cursorPosY = _glfw.cursorPosY;
+            window->cursorPosX = _glfw->cursorPosX;
+            window->cursorPosY = _glfw->cursorPosY;
 
             _glfwPlatformGetWindowSize(window, &width, &height);
             _glfwPlatformSetCursorPos(window, width / 2, height / 2);
@@ -343,7 +343,7 @@ GLFWAPI void glfwSetCursorPos(GLFWwindow* handle, double xpos, double ypos)
 
     _GLFW_REQUIRE_INIT();
 
-    if (_glfw.cursorWindow != window)
+    if (_glfw->cursorWindow != window)
         return;
 
     if (window->cursorMode == GLFW_CURSOR_DISABLED)
@@ -366,8 +366,8 @@ GLFWAPI GLFWcursor* glfwCreateCursor(const GLFWimage* image, int xhot, int yhot)
     _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
 
     cursor = calloc(1, sizeof(_GLFWcursor));
-    cursor->next = _glfw.cursorListHead;
-    _glfw.cursorListHead = cursor;
+    cursor->next = _glfw->cursorListHead;
+    _glfw->cursorListHead = cursor;
 
     if (!_glfwPlatformCreateCursor(cursor, image, xhot, yhot))
     {
@@ -396,8 +396,8 @@ GLFWAPI GLFWcursor* glfwCreateStandardCursor(int shape)
     }
 
     cursor = calloc(1, sizeof(_GLFWcursor));
-    cursor->next = _glfw.cursorListHead;
-    _glfw.cursorListHead = cursor;
+    cursor->next = _glfw->cursorListHead;
+    _glfw->cursorListHead = cursor;
 
     if (!_glfwPlatformCreateStandardCursor(cursor, shape))
     {
@@ -421,7 +421,7 @@ GLFWAPI void glfwDestroyCursor(GLFWcursor* handle)
     {
         _GLFWwindow* window;
 
-        for (window = _glfw.windowListHead;  window;  window = window->next)
+        for (window = _glfw->windowListHead;  window;  window = window->next)
         {
             if (window->cursor == cursor)
                 glfwSetCursor((GLFWwindow*) window, NULL);
@@ -432,7 +432,7 @@ GLFWAPI void glfwDestroyCursor(GLFWcursor* handle)
 
     // Unlink cursor from global linked list
     {
-        _GLFWcursor** prev = &_glfw.cursorListHead;
+        _GLFWcursor** prev = &_glfw->cursorListHead;
 
         while (*prev != cursor)
             prev = &((*prev)->next);

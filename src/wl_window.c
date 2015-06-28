@@ -75,7 +75,7 @@ static const struct wl_shell_surface_listener shellSurfaceListener = {
 static GLboolean createSurface(_GLFWwindow* window,
                                const _GLFWwndconfig* wndconfig)
 {
-    window->wl.surface = wl_compositor_create_surface(_glfw.wl.compositor);
+    window->wl.surface = wl_compositor_create_surface(_glfw->wl.compositor);
     if (!window->wl.surface)
         return GL_FALSE;
 
@@ -87,7 +87,7 @@ static GLboolean createSurface(_GLFWwindow* window,
     if (!window->wl.native)
         return GL_FALSE;
 
-    window->wl.shell_surface = wl_shell_get_shell_surface(_glfw.wl.shell,
+    window->wl.shell_surface = wl_shell_get_shell_surface(_glfw->wl.shell,
                                                           window->wl.surface);
     if (!window->wl.shell_surface)
         return GL_FALSE;
@@ -117,7 +117,7 @@ createTmpfileCloexec(char* tmpname)
 static void
 handleEvents(int timeout)
 {
-    struct wl_display* display = _glfw.wl.display;
+    struct wl_display* display = _glfw->wl.display;
     struct pollfd fds[] = {
         { wl_display_get_fd(display), POLLIN },
     };
@@ -130,7 +130,7 @@ handleEvents(int timeout)
     // can.
     if (wl_display_flush(display) < 0 && errno != EAGAIN)
     {
-        _GLFWwindow* window = _glfw.windowListHead;
+        _GLFWwindow* window = _glfw->windowListHead;
         while (window)
         {
             _glfwInputWindowCloseRequest(window);
@@ -242,14 +242,14 @@ int _glfwPlatformCreateWindow(_GLFWwindow* window,
 
 void _glfwPlatformDestroyWindow(_GLFWwindow* window)
 {
-    if (window == _glfw.wl.pointerFocus)
+    if (window == _glfw->wl.pointerFocus)
     {
-        _glfw.wl.pointerFocus = NULL;
+        _glfw->wl.pointerFocus = NULL;
         _glfwInputCursorEnter(window, GL_FALSE);
     }
-    if (window == _glfw.wl.keyboardFocus)
+    if (window == _glfw->wl.keyboardFocus)
     {
-        _glfw.wl.keyboardFocus = NULL;
+        _glfw->wl.keyboardFocus = NULL;
         _glfwInputWindowFocus(window, GL_FALSE);
     }
 
@@ -374,7 +374,7 @@ void _glfwPlatformWaitEvents(void)
 
 void _glfwPlatformPostEmptyEvent(void)
 {
-    wl_display_sync(_glfw.wl.display);
+    wl_display_sync(_glfw->wl.display);
 }
 
 void _glfwPlatformGetCursorPos(_GLFWwindow* window, double* xpos, double* ypos)
@@ -425,7 +425,7 @@ int _glfwPlatformCreateCursor(_GLFWcursor* cursor,
         return GL_FALSE;
     }
 
-    pool = wl_shm_create_pool(_glfw.wl.shm, fd, length);
+    pool = wl_shm_create_pool(_glfw->wl.shm, fd, length);
 
     close(fd);
     unsigned char* source = (unsigned char*) image->pixels;
@@ -469,27 +469,27 @@ void _glfwPlatformSetCursor(_GLFWwindow* window, _GLFWcursor* cursor)
 {
     struct wl_buffer* buffer;
     struct wl_cursor_image* image;
-    struct wl_surface* surface = _glfw.wl.cursorSurface;
+    struct wl_surface* surface = _glfw->wl.cursorSurface;
 
-    if (!_glfw.wl.pointer)
+    if (!_glfw->wl.pointer)
         return;
 
     window->wl.currentCursor = cursor;
 
     // If we're not in the correct window just save the cursor
     // the next time the pointer enters the window the cursor will change
-    if (window != _glfw.wl.pointerFocus)
+    if (window != _glfw->wl.pointerFocus)
         return;
 
     if (window->cursorMode == GLFW_CURSOR_NORMAL)
     {
         if (cursor == NULL)
         {
-            image = _glfw.wl.defaultCursor->images[0];
+            image = _glfw->wl.defaultCursor->images[0];
             buffer = wl_cursor_image_get_buffer(image);
             if (!buffer)
                 return;
-            wl_pointer_set_cursor(_glfw.wl.pointer, _glfw.wl.pointerSerial,
+            wl_pointer_set_cursor(_glfw->wl.pointer, _glfw->wl.pointerSerial,
                                   surface,
                                   image->hotspot_x,
                                   image->hotspot_y);
@@ -500,7 +500,7 @@ void _glfwPlatformSetCursor(_GLFWwindow* window, _GLFWcursor* cursor)
         }
         else
         {
-            wl_pointer_set_cursor(_glfw.wl.pointer, _glfw.wl.pointerSerial,
+            wl_pointer_set_cursor(_glfw->wl.pointer, _glfw->wl.pointerSerial,
                                   surface,
                                   cursor->wl.xhot,
                                   cursor->wl.yhot);
@@ -512,7 +512,7 @@ void _glfwPlatformSetCursor(_GLFWwindow* window, _GLFWcursor* cursor)
     }
     else /* Cursor is hidden set cursor surface to NULL */
     {
-        wl_pointer_set_cursor(_glfw.wl.pointer, _glfw.wl.pointerSerial, NULL, 0, 0);
+        wl_pointer_set_cursor(_glfw->wl.pointer, _glfw->wl.pointerSerial, NULL, 0, 0);
     }
 }
 

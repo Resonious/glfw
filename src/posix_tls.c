@@ -34,7 +34,7 @@
 
 int _glfwCreateContextTLS(void)
 {
-    if (pthread_key_create(&_glfw.posix_tls.context, NULL) != 0)
+    if (pthread_key_create(&_glfw->posix_tls.context, NULL) != 0)
     {
         _glfwInputError(GLFW_PLATFORM_ERROR,
                         "POSIX: Failed to create context TLS");
@@ -46,12 +46,12 @@ int _glfwCreateContextTLS(void)
 
 void _glfwDestroyContextTLS(void)
 {
-    pthread_key_delete(_glfw.posix_tls.context);
+    pthread_key_delete(_glfw->posix_tls.context);
 }
 
 void _glfwSetContextTLS(_GLFWwindow* context)
 {
-    pthread_setspecific(_glfw.posix_tls.context, context);
+    pthread_setspecific(_glfw->posix_tls.context, context);
 }
 
 
@@ -61,6 +61,6 @@ void _glfwSetContextTLS(_GLFWwindow* context)
 
 _GLFWwindow* _glfwPlatformGetCurrentContext(void)
 {
-    return pthread_getspecific(_glfw.posix_tls.context);
+    return pthread_getspecific(_glfw->posix_tls.context);
 }
 

@@ -38,7 +38,7 @@ _GLFWmonitor** _glfwPlatformGetMonitors(int* count)
     int i, found = 0;
     _GLFWmonitor** monitors = NULL;
     MirDisplayConfiguration* displayConfig =
-        mir_connection_create_display_config(_glfw.mir.connection);
+        mir_connection_create_display_config(_glfw->mir.connection);
 
     *count = 0;
 
@@ -91,7 +91,7 @@ GLFWvidmode* _glfwPlatformGetVideoModes(_GLFWmonitor* monitor, int* found)
     int i;
     GLFWvidmode* modes = NULL;
     MirDisplayConfiguration* displayConfig =
-        mir_connection_create_display_config(_glfw.mir.connection);
+        mir_connection_create_display_config(_glfw->mir.connection);
 
     for (i = 0;  i < displayConfig->num_outputs;  i++)
     {

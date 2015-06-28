@@ -272,8 +272,8 @@ int _glfwInitContextAPI(void)
     if (!_glfwCreateContextTLS())
         return GL_FALSE;
 
-    _glfw.wgl.opengl32.instance = LoadLibraryW(L"opengl32.dll");
-    if (!_glfw.wgl.opengl32.instance)
+    _glfw->wgl.opengl32.instance = LoadLibraryW(L"opengl32.dll");
+    if (!_glfw->wgl.opengl32.instance)
     {
         _glfwInputError(GLFW_PLATFORM_ERROR, "WGL: Failed to load opengl32.dll");
         return GL_FALSE;
@@ -286,8 +286,8 @@ int _glfwInitContextAPI(void)
 //
 void _glfwTerminateContextAPI(void)
 {
-    if (_glfw.wgl.opengl32.instance)
-        FreeLibrary(_glfw.wgl.opengl32.instance);
+    if (_glfw->wgl.opengl32.instance)
+        FreeLibrary(_glfw->wgl.opengl32.instance);
 
     _glfwDestroyContextTLS();
 }
@@ -631,7 +631,7 @@ GLFWglproc _glfwPlatformGetProcAddress(const char* procname)
     if (proc)
         return proc;
 
-    return (GLFWglproc) GetProcAddress(_glfw.wgl.opengl32.instance, procname);
+    return (GLFWglproc) GetProcAddress(_glfw->wgl.opengl32.instance, procname);
 }
 
 

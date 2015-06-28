@@ -34,27 +34,27 @@
 
 int _glfwCreateContextTLS(void)
 {
-    _glfw.win32_tls.context = TlsAlloc();
-    if (_glfw.win32_tls.context == TLS_OUT_OF_INDEXES)
+    _glfw->win32_tls.context = TlsAlloc();
+    if (_glfw->win32_tls.context == TLS_OUT_OF_INDEXES)
     {
         _glfwInputError(GLFW_PLATFORM_ERROR,
                         "Win32: Failed to allocate TLS index");
         return GL_FALSE;
     }
 
-    _glfw.win32_tls.allocated = GL_TRUE;
+    _glfw->win32_tls.allocated = GL_TRUE;
     return GL_TRUE;
 }
 
 void _glfwDestroyContextTLS(void)
 {
-    if (_glfw.win32_tls.allocated)
-        TlsFree(_glfw.win32_tls.context);
+    if (_glfw->win32_tls.allocated)
+        TlsFree(_glfw->win32_tls.context);
 }
 
 void _glfwSetContextTLS(_GLFWwindow* context)
 {
-    TlsSetValue(_glfw.win32_tls.context, context);
+    TlsSetValue(_glfw->win32_tls.context, context);
 }
 
 
@@ -64,6 +64,6 @@ void _glfwSetContextTLS(_GLFWwindow* context)
 
 _GLFWwindow* _glfwPlatformGetCurrentContext(void)
 {
-    return TlsGetValue(_glfw.win32_tls.context);
+    return TlsGetValue(_glfw->win32_tls.context);
 }
 

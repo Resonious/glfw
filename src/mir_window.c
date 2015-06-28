@@ -61,28 +61,28 @@ static EventNode* newEventNode(MirEvent const* event, _GLFWwindow* context)
 
 static void enqueueEvent(MirEvent const* event, _GLFWwindow* context)
 {
-    pthread_mutex_lock(&_glfw.mir.event_mutex);
+    pthread_mutex_lock(&_glfw->mir.event_mutex);
 
     EventNode* new_node = newEventNode(event, context);
-    TAILQ_INSERT_TAIL(&_glfw.mir.event_queue->head, new_node, entries);
+    TAILQ_INSERT_TAIL(&_glfw->mir.event_queue->head, new_node, entries);
 
-    pthread_cond_signal(&_glfw.mir.event_cond);
+    pthread_cond_signal(&_glfw->mir.event_cond);
 
-    pthread_mutex_unlock(&_glfw.mir.event_mutex);
+    pthread_mutex_unlock(&_glfw->mir.event_mutex);
 }
 
 static EventNode* dequeueEvent(EventQueue* queue)
 {
     EventNode* node = NULL;
 
-    pthread_mutex_lock(&_glfw.mir.event_mutex);
+    pthread_mutex_lock(&_glfw->mir.event_mutex);
 
     node = queue->head.tqh_first;
 
     if (node)
         TAILQ_REMOVE(&queue->head, node, entries);
 
-    pthread_mutex_unlock(&_glfw.mir.event_mutex);
+    pthread_mutex_unlock(&_glfw->mir.event_mutex);
 
     return node;
 }
@@ -92,7 +92,7 @@ static MirPixelFormat findValidPixelFormat(void)
     unsigned int i, validFormats, mirPixelFormats = 32;
     MirPixelFormat formats[mir_pixel_formats];
 
-    mir_connection_get_available_surface_formats(_glfw.mir.connection, formats,
+    mir_connection_get_available_surface_formats(_glfw->mir.connection, formats,
                                                  mirPixelFormats, &validFormats);
 
     for (i = 0;  i < validFormats;  i++)
@@ -402,7 +402,7 @@ static int createSurface(_GLFWwindow* window)
     }
 
     window->mir.surface =
-        mir_connection_create_surface_sync(_glfw.mir.connection, &params);
+        mir_connection_create_surface_sync(_glfw->mir.connection, &params);
     if (!mir_surface_is_valid(window->mir.surface))
     {
         _glfwInputError(GLFW_PLATFORM_ERROR,
@@ -591,21 +591,21 @@ void _glfwPlatformPollEvents(void)
 {
     EventNode* node = NULL;
 
-    while ((node = dequeueEvent(_glfw.mir.event_queue)))
+    while ((node = dequeueEvent(_glfw->mir.event_queue)))
     {
         handleInput(node->event, node->window);
-        deleteNode(_glfw.mir.event_queue, node);
+        deleteNode(_glfw->mir.event_queue, node);
     }
 }
 
 void _glfwPlatformWaitEvents(void)
 {
-    pthread_mutex_lock(&_glfw.mir.event_mutex);
+    pthread_mutex_lock(&_glfw->mir.event_mutex);
 
-    if (emptyEventQueue(_glfw.mir.event_queue))
-        pthread_cond_wait(&_glfw.mir.event_cond, &_glfw.mir.event_mutex);
+    if (emptyEventQueue(_glfw->mir.event_queue))
+        pthread_cond_wait(&_glfw->mir.event_cond, &_glfw->mir.event_mutex);
 
-    pthread_mutex_unlock(&_glfw.mir.event_mutex);
+    pthread_mutex_unlock(&_glfw->mir.event_mutex);
 
     _glfwPlatformPollEvents();
 }

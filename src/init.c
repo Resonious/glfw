@@ -40,7 +40,7 @@
 // These are documented in internal.h
 //
 GLboolean _glfwInitialized = GL_FALSE;
-_GLFWlibrary _glfw;
+_GLFWlibrary *_glfw = NULL;
 
 // This is outside of _glfw so it can be initialized and usable before
 // glfwInit is called, which lets that function report errors
@@ -120,7 +120,7 @@ GLFWAPI int glfwInit(void)
     if (_glfwInitialized)
         return GL_TRUE;
 
-    memset(&_glfw, 0, sizeof(_glfw));
+    _glfw = calloc(1, sizeof(_GLFWlibrary));
 
     if (!_glfwPlatformInit())
     {
@@ -128,7 +128,7 @@ GLFWAPI int glfwInit(void)
         return GL_FALSE;
     }
 
-    _glfw.monitors = _glfwPlatformGetMonitors(&_glfw.monitorCount);
+    _glfw->monitors = _glfwPlatformGetMonitors(&_glfw->monitorCount);
     _glfwInitialized = GL_TRUE;
 
     // Not all window hints have zero as their default value
@@ -137,35 +137,42 @@ GLFWAPI int glfwInit(void)
     return GL_TRUE;
 }
 
+GLFWAPI void glfwSet(void *_newGlfw)
+{
+    if (_glfw != NULL)
+        free(_glfw);
+    _glfw = _newGlfw;
+    _glfwInitialized = GL_TRUE;
+}
+
 GLFWAPI void glfwTerminate(void)
 {
     int i;
 
+    if (_glfw == NULL)
+        return;
     if (!_glfwInitialized)
         return;
 
-    memset(&_glfw.callbacks, 0, sizeof(_glfw.callbacks));
+    while (_glfw->windowListHead)
+        glfwDestroyWindow((GLFWwindow*) _glfw->windowListHead);
 
-    while (_glfw.windowListHead)
-        glfwDestroyWindow((GLFWwindow*) _glfw.windowListHead);
+    while (_glfw->cursorListHead)
+        glfwDestroyCursor((GLFWcursor*) _glfw->cursorListHead);
 
-    while (_glfw.cursorListHead)
-        glfwDestroyCursor((GLFWcursor*) _glfw.cursorListHead);
-
-    for (i = 0;  i < _glfw.monitorCount;  i++)
+    for (i = 0;  i < _glfw->monitorCount;  i++)
     {
-        _GLFWmonitor* monitor = _glfw.monitors[i];
+        _GLFWmonitor* monitor = _glfw->monitors[i];
         if (monitor->originalRamp.size)
             _glfwPlatformSetGammaRamp(monitor, &monitor->originalRamp);
     }
 
-    _glfwFreeMonitors(_glfw.monitors, _glfw.monitorCount);
-    _glfw.monitors = NULL;
-    _glfw.monitorCount = 0;
+    _glfwFreeMonitors(_glfw->monitors, _glfw->monitorCount);
+    _glfw->monitors = NULL;
+    _glfw->monitorCount = 0;
 
     _glfwPlatformTerminate();
 
-    memset(&_glfw, 0, sizeof(_glfw));
     _glfwInitialized = GL_FALSE;
 }
 

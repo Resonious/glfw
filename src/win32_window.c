@@ -230,7 +230,7 @@ static int translateKey(WPARAM wParam, LPARAM lParam)
         return GLFW_KEY_LEFT_CONTROL;
     }
 
-    return _glfw.win32.publicKeys[HIWORD(lParam) & 0x1FF];
+    return _glfw->win32.publicKeys[HIWORD(lParam) & 0x1FF];
 }
 
 // Enter full screen mode
@@ -462,7 +462,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
             if (window->cursorMode == GLFW_CURSOR_DISABLED)
             {
-                if (_glfw.cursorWindow != window)
+                if (_glfw->cursorWindow != window)
                     break;
 
                 _glfwInputCursorMotion(window,
@@ -514,7 +514,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
         case WM_SIZE:
         {
-            if (_glfw.cursorWindow == window)
+            if (_glfw->cursorWindow == window)
             {
                 if (window->cursorMode == GLFW_CURSOR_DISABLED)
                     updateClipRect(window);
@@ -539,7 +539,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
         case WM_MOVE:
         {
-            if (_glfw.cursorWindow == window)
+            if (_glfw->cursorWindow == window)
             {
                 if (window->cursorMode == GLFW_CURSOR_DISABLED)
                     updateClipRect(window);
@@ -566,7 +566,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
         case WM_SETCURSOR:
         {
-            if (_glfw.cursorWindow == window && LOWORD(lParam) == HTCLIENT)
+            if (_glfw->cursorWindow == window && LOWORD(lParam) == HTCLIENT)
             {
                 if (window->cursorMode == GLFW_CURSOR_HIDDEN ||
                     window->cursorMode == GLFW_CURSOR_DISABLED)
@@ -1001,7 +1001,7 @@ void _glfwPlatformPollEvents(void)
             // While GLFW does not itself post WM_QUIT, other processes may post
             // it to this one, for example Task Manager
 
-            window = _glfw.windowListHead;
+            window = _glfw->windowListHead;
             while (window)
             {
                 _glfwInputWindowCloseRequest(window);
@@ -1015,7 +1015,7 @@ void _glfwPlatformPollEvents(void)
         }
     }
 
-    window = _glfw.cursorWindow;
+    window = _glfw->cursorWindow;
     if (window)
     {
         // LSHIFT/RSHIFT fixup (keys tend to "stick" without this fix)
@@ -1056,7 +1056,7 @@ void _glfwPlatformWaitEvents(void)
 
 void _glfwPlatformPostEmptyEvent(void)
 {
-    _GLFWwindow* window = _glfw.windowListHead;
+    _GLFWwindow* window = _glfw->windowListHead;
     PostMessage(window->win32.handle, WM_NULL, 0, 0);
 }
 
@@ -1194,7 +1194,7 @@ void _glfwPlatformSetCursor(_GLFWwindow* window, _GLFWcursor* cursor)
     // the following condition is not met. That way it should be safe to destroy the
     // cursor after calling glfwSetCursor(window, NULL) on all windows using the cursor.
 
-    if (_glfw.cursorWindow == window &&
+    if (_glfw->cursorWindow == window &&
         window->cursorMode == GLFW_CURSOR_NORMAL &&
         window->win32.cursorInside)
     {
@@ -1270,21 +1270,21 @@ const char* _glfwPlatformGetClipboardString(_GLFWwindow* window)
         return NULL;
     }
 
-    free(_glfw.win32.clipboardString);
-    _glfw.win32.clipboardString =
+    free(_glfw->win32.clipboardString);
+    _glfw->win32.clipboardString =
         _glfwCreateUTF8FromWideString(GlobalLock(stringHandle));
 
     GlobalUnlock(stringHandle);
     CloseClipboard();
 
-    if (!_glfw.win32.clipboardString)
+    if (!_glfw->win32.clipboardString)
     {
         _glfwInputError(GLFW_PLATFORM_ERROR,
                         "Win32: Failed to convert wide string to UTF-8");
         return NULL;
     }
 
-    return _glfw.win32.clipboardString;
+    return _glfw->win32.clipboardString;
 }
 
 

@@ -129,7 +129,7 @@ void _glfwAddOutput(uint32_t name, uint32_t version)
 
     monitor = _glfwAllocMonitor(name_str, 0, 0);
 
-    output = wl_registry_bind(_glfw.wl.registry,
+    output = wl_registry_bind(_glfw->wl.registry,
                               name,
                               &wl_output_interface,
                               2);
@@ -145,18 +145,18 @@ void _glfwAddOutput(uint32_t name, uint32_t version)
     monitor->wl.output = output;
     wl_output_add_listener(output, &output_listener, monitor);
 
-    if (_glfw.wl.monitorsCount + 1 >= _glfw.wl.monitorsSize)
+    if (_glfw->wl.monitorsCount + 1 >= _glfw->wl.monitorsSize)
     {
-        _GLFWmonitor** monitors = _glfw.wl.monitors;
-        int size = _glfw.wl.monitorsSize * 2;
+        _GLFWmonitor** monitors = _glfw->wl.monitors;
+        int size = _glfw->wl.monitorsSize * 2;
 
         monitors = realloc(monitors, size * sizeof(_GLFWmonitor*));
 
-        _glfw.wl.monitors = monitors;
-        _glfw.wl.monitorsSize = size;
+        _glfw->wl.monitors = monitors;
+        _glfw->wl.monitorsSize = size;
     }
 
-    _glfw.wl.monitors[_glfw.wl.monitorsCount++] = monitor;
+    _glfw->wl.monitors[_glfw->wl.monitorsCount++] = monitor;
 }
 
 
@@ -168,22 +168,22 @@ _GLFWmonitor** _glfwPlatformGetMonitors(int* count)
 {
     _GLFWmonitor** monitors;
     _GLFWmonitor* monitor;
-    int i, monitorsCount = _glfw.wl.monitorsCount;
+    int i, monitorsCount = _glfw->wl.monitorsCount;
 
-    if (_glfw.wl.monitorsCount == 0)
+    if (_glfw->wl.monitorsCount == 0)
         goto err;
 
     monitors = calloc(monitorsCount, sizeof(_GLFWmonitor*));
 
     for (i = 0; i < monitorsCount; i++)
     {
-        _GLFWmonitor* origMonitor = _glfw.wl.monitors[i];
+        _GLFWmonitor* origMonitor = _glfw->wl.monitors[i];
         monitor = calloc(1, sizeof(_GLFWmonitor));
 
         monitor->modes =
             _glfwPlatformGetVideoModes(origMonitor,
                                        &origMonitor->wl.modesCount);
-        *monitor = *_glfw.wl.monitors[i];
+        *monitor = *_glfw->wl.monitors[i];
         monitors[i] = monitor;
     }
 
